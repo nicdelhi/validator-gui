@@ -3,6 +3,10 @@ import { BarElement, CategoryScale, Chart as ChartJS, ChartOptions, LinearScale,
 import { Bar } from 'react-chartjs-2';
 import { useNodeStatusHistory } from '../hooks/useNodeStatusHistory';
 
+export const getServerSideProps = () => ({
+  props: { apiPort: process.env.PORT },
+});
+
 export const options = {
   responsive: true,
   maintainAspectRatio: false,
@@ -22,33 +26,9 @@ export const options = {
   }
 } as any as ChartOptions;
 
-const labels = [
-  'January', '', '', '', '', '', '', '', '', '',
-  'February', '', '', '', '', '', '', '', '',
-  'March', '', '', '', '', '', '', '', '',
-  'April', '', '', '', '', '', '', '',
-  'May', '', '', '', '', '', '', '', '',
-  'June', '', '', '', '', '', '', '', '',
-  'July', '', '', '', '', '', '', '', '',]
-const mockData = []
-for (let i = 0; i < 100; i++) {
-  mockData.push(Math.floor(Math.random() * 3))
-}
-
-const data = {
-  labels,
-  datasets: [
-    {
-      data: mockData,
-      barThickness: 2,
-      backgroundColor: 'rgba(255, 255, 255)',
-    }
-  ],
-};
-
-export default function Overview() {
-  const {nodeStatus, isLoading, isError} = useNodeStatus()
-  const {nodeStatusHistory} = useNodeStatusHistory()
+export default function Overview({ apiPort }: any) {
+  const {nodeStatus, isLoading, isError} = useNodeStatus(apiPort)
+  const {nodeStatusHistory} = useNodeStatusHistory(apiPort)
 
   ChartJS.register(
     CategoryScale,
