@@ -7,10 +7,24 @@ const jwt = require('jsonwebtoken')
 const jwtSecret = process.env.JWT_SECRET || '0be8fca8ad922f4e485a10ab53836f99a8e0fc565b2c4bdd197f572278b28d2e'
 
 export const loginHandler = (req: Request, res: Response) => {
-  const password = req.body && req.body.password
+  var auth = req.get("authorization");
+  if(!auth){
+    unautorizedResponse(req, res)
+    return
+  }
+  auth = auth.split(" ").pop()?.toString()
+  if(!auth){
+    unautorizedResponse(req, res)
+    return
+  }
+  var credentials = Buffer.from(auth, "base64").toString("ascii").split(":");
+  if(credentials.length !== 2 || credentials[0] !== "admin"){
+    unautorizedResponse(req, res)
+    return
+  }
 
   // Exec the CLI validator login command
-  exec(`operator-cli gui login ${password}`, (err, stdout, stderr) => {
+  exec(`operator-cli gui login ${credentials[1]}`, (err, stdout, stderr) => {
     if (err) {
       cliStderrResponse(res, 'Unable to check login', err.message)
       return

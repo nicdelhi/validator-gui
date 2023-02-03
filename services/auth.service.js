@@ -3,6 +3,7 @@ import getConfig from 'next/config'
 import Router from 'next/router'
 import {httpOrHttps} from "../utils/is-dev";
 
+
 const tokenKey = 'shmguitk'
 
 export const authService = {
@@ -16,11 +17,13 @@ export const authService = {
   logout,
 }
 
-function login(password, apiPort) {
+function login(user, password, apiPort) {
   return fetch(`${httpOrHttps()}://${globalThis.window?.location.hostname}:${apiPort}/auth/login`, {
-    headers: {'Content-Type': 'application/json'},
-    method: 'POST',
-    body: JSON.stringify({ password }),
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization": `Basic ${Buffer.from(user + ":" + password).toString('base64')}`
+    },
+    method: 'POST'
   }).then(async res => {
     const data = await res.json();
     if(!res.ok) {

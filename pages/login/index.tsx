@@ -25,11 +25,11 @@ const Login = ({ apiPort }: any) => {
 
   const [apiError, setApiError] = useState(null);
 
-  function onSubmit({password}: any) {
+  function onSubmit({password, user}: any) {
     setApiError(null);
 
     return authService
-      .login(password, apiPort)
+      .login("admin", password, apiPort)
       .then(() => {
         // get return url from query parameters or default to '/'
         const returnUrl = router.query.returnUrl?.toString() || '/'

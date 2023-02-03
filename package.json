@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "ts-node --project tsconfig.server.json api/index.ts",
-    "start": "node build/index.js",
+    "start": "PORT=8088 node build/index.js",
     "lint": "next lint",
     "build": "next build && tsc -project tsconfig.server.json"
   },
