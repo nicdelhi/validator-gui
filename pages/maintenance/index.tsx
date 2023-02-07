@@ -14,9 +14,10 @@ import { useNodePerformance } from '../../hooks/useNodePerformance';
 import { NodeVersion } from '../../model/node-version';
 import React, { useState } from 'react';
 import SignMessage from '../../components/SignMessage';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccountStakeInfo } from '../../hooks/useAccountStakeInfo';
+import { CHAIN_ID } from '../_app';
 
 export const getServerSideProps = () => ({
   props: {apiPort: process.env.PORT},
@@ -54,10 +55,12 @@ const versionWarning = (version: NodeVersion) => {
 export default function Maintenance({apiPort}: any) {
   const {version, update} = useNodeVersion(apiPort)
   const {nodeStatus, startNode, stopNode} = useNodeStatus(apiPort)
-  const {address, isConnected} = useAccount();
-  const {stakeInfo} = useAccountStakeInfo(apiPort, address);
+  const {address, isConnected} = useAccount()
+  const {stakeInfo} = useAccountStakeInfo(apiPort, address)
   const {performance} = useNodePerformance(apiPort)
-  const [showStakeForm, setShowStakeForm] = useState<boolean>(false);
+  const [showStakeForm, setShowStakeForm] = useState<boolean>(false)
+  const {chain} = useNetwork()
+  const {switchNetwork} = useSwitchNetwork()
 
   return <>{!!(performance && version && nodeStatus) && <div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-auto">
@@ -133,6 +136,7 @@ export default function Maintenance({apiPort}: any) {
                     </div>
 
                   {isConnected
+                    && chain?.id === CHAIN_ID
                     && stakeInfo?.stake > '0.0'
                     && nodeStatus?.nodeInfo?.publicKey != null
                     && stakeInfo?.nominee !== nodeStatus?.nodeInfo?.publicKey &&
@@ -148,17 +152,32 @@ export default function Maintenance({apiPort}: any) {
                   }
 
                     <div className="flex justify-end">
-                      {isConnected && stakeInfo?.stake > '0.0' &&
+                      {isConnected
+                        && chain?.id === CHAIN_ID
+                        && stakeInfo?.stake > '0.0' &&
                           <RemoveStakeButton nominee={stakeInfo?.nominee}/>
                       }
 
-                      {isConnected && nodeStatus?.state !== 'stopped' &&
+                      {isConnected
+                        && chain?.id === CHAIN_ID
+                        && nodeStatus?.state !== 'stopped' &&
                           <button className="p-3 bg-blue-700 text-stone-200 mr-2"
                                   onClick={() => setShowStakeForm(true)}>
                               Add Stake
                               <ArrowRightIcon className="h-5 w-5 inline ml-2"/>
                           </button>
                       }
+
+                      {isConnected
+                        && chain?.id !== CHAIN_ID
+                        &&
+                          <button className="p-3 bg-blue-700 text-stone-200 mr-2"
+                                  onClick={() => switchNetwork?.(CHAIN_ID)}>
+                              Switch Network
+                              <ArrowRightIcon className="h-5 w-5 inline ml-2"/>
+                          </button>
+                      }
+
                       {!isConnected &&
                           <ConnectButton></ConnectButton>
                       }
