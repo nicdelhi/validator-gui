@@ -18,6 +18,7 @@ import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccountStakeInfo } from '../../hooks/useAccountStakeInfo';
 import { CHAIN_ID } from '../_app';
+import LoadingButton from '../../components/LoadingButton';
 
 export const getServerSideProps = () => ({
   props: {apiPort: process.env.PORT},
@@ -54,7 +55,7 @@ const versionWarning = (version: NodeVersion) => {
 
 export default function Maintenance({apiPort}: any) {
   const {version, update} = useNodeVersion(apiPort)
-  const {nodeStatus, startNode, stopNode} = useNodeStatus(apiPort)
+  const {nodeStatus, isLoading, startNode, stopNode} = useNodeStatus(apiPort)
   const {address, isConnected} = useAccount()
   const {stakeInfo} = useAccountStakeInfo(apiPort, address)
   const {performance} = useNodePerformance(apiPort)
@@ -73,27 +74,33 @@ export default function Maintenance({apiPort}: any) {
                   <div>Total time validating: {nullPlaceholder(nodeStatus.totalTimeValidating)}</div>
                   <div>Time since last active: {nullPlaceholder(nodeStatus.lastActive)}</div>
                   <div className="flex-grow"/>
-                  <div className="flex text-red-500 items-center">
-                      <div>
-                          <ExclamationCircleIcon className="h-7 w-7"/>
-                      </div>
-                      <div className="ml-2 font-semibold">
-                          If your node is stopped, it will not be part of the network and therefore is not
-                          eligible to receive node rewards
-                      </div>
-                  </div>
+                {nodeStatus.state === 'stopped' &&
+                    <div className="flex text-red-500 items-center">
+                        <div>
+                            <ExclamationCircleIcon className="h-7 w-7"/>
+                        </div>
+                        <div className="ml-2 font-semibold">
+                            If your node is stopped, it will not be part of the network and therefore is not
+                            eligible to receive node rewards
+                        </div>
+                    </div>
+                }
                   <div className="flex justify-end">
                     {(nodeStatus.state === 'active' || nodeStatus.state === 'standby') &&
-                        <button className="p-3 bg-blue-700 text-stone-200" onClick={() => stopNode()}>
+                        <LoadingButton className="btn btn-error"
+                                       isLoading={isLoading}
+                                       onClick={() => stopNode()}>
                             Stop Node
                             <ArrowRightIcon className="h-5 w-5 inline ml-2"/>
-                        </button>
+                        </LoadingButton>
                     }
                     {(nodeStatus.state === 'stopped') &&
-                        <button className="p-3 bg-blue-700 text-stone-200 mr-2" onClick={() => startNode()}>
+                        <LoadingButton className="btn btn-primary"
+                                       isLoading={isLoading}
+                                       onClick={() => startNode()}>
                             Start Node
                             <ArrowRightIcon className="h-5 w-5 inline ml-2"/>
-                        </button>
+                        </LoadingButton>
                     }
                   </div>
               </div>
@@ -108,7 +115,7 @@ export default function Maintenance({apiPort}: any) {
                                  nominee={nodeStatus?.nodeInfo?.publicKey}
                                  stakeAmount={nodeStatus.stakeRequirement ? +nodeStatus.stakeRequirement : 0}
                                  onStake={() => setShowStakeForm(false)}/>
-                    <button className="p-3 border border-blue-700 text-stone-600 mr-2 absolute bottom-8"
+                    <button className="btn btn-primary btn-outline mr-2 absolute bottom-8"
                             onClick={() => setShowStakeForm(false)}>
                         <ArrowLeftIcon className="h-5 w-5 inline mr-2"/>
                         Cancel
@@ -161,7 +168,7 @@ export default function Maintenance({apiPort}: any) {
                       {isConnected
                         && chain?.id === CHAIN_ID
                         && nodeStatus?.state !== 'stopped' &&
-                          <button className="p-3 bg-blue-700 text-stone-200 mr-2"
+                          <button className="btn btn-primary ml-2"
                                   onClick={() => setShowStakeForm(true)}>
                               Add Stake
                               <ArrowRightIcon className="h-5 w-5 inline ml-2"/>
@@ -171,7 +178,7 @@ export default function Maintenance({apiPort}: any) {
                       {isConnected
                         && chain?.id !== CHAIN_ID
                         &&
-                          <button className="p-3 bg-blue-700 text-stone-200 mr-2"
+                          <button className="btn btn-primary ml-2"
                                   onClick={() => switchNetwork?.(CHAIN_ID)}>
                               Switch Network
                               <ArrowRightIcon className="h-5 w-5 inline ml-2"/>
@@ -209,7 +216,7 @@ export default function Maintenance({apiPort}: any) {
                   </div>
                   <div className="flex-grow"/>
                   <div className="flex justify-end">
-                      <button className="p-3 bg-blue-700 text-stone-200">
+                      <button className="btn btn-primary">
                           Benchmark - Coming Soon
                           <ArrowRightIcon className="h-5 w-5 inline ml-2"/>
                       </button>

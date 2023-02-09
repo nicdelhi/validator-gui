@@ -52,7 +52,7 @@ const data = {
 };
 
 export default function Overview({apiPort}: any) {
-  const {nodeStatus, isLoading, isError} = useNodeStatus(apiPort)
+  const {nodeStatus, isLoading} = useNodeStatus(apiPort)
   const {nodeStatusHistory} = useNodeStatusHistory(apiPort)
 
   ChartJS.register(

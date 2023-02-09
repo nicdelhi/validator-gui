@@ -55,7 +55,7 @@ const Login = ({ apiPort }: any) => {
                   <div className="ml-2 font-semibold">{apiError.message}</div>
               </div>
              )}
-            <button disabled={formState.isSubmitting} className="p-4 bg-blue-700 text-stone-200" type="submit" >
+            <button disabled={formState.isSubmitting} className="btn btn-primary" type="submit" >
               { formState.isSubmitting ? <ArrowPathIcon className='w-5 spinner'/> : 'Connect'}
             </button>
           </form>
