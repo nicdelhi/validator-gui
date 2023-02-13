@@ -52,7 +52,7 @@ export default function Settings({ apiPort }: any) {
     {haveMetamask ? (
       isConnected ? (
         <div>
-          <SignMessage nominator={accountAddress} nominee={nodeStatus?.nodeInfo?.publicKey}/>
+          <SignMessage nominator={accountAddress} nominee={nodeStatus?.nodeInfo?.publicKey} stakeRequirement={nodeStatus.stakeRequirement} />
         </div>
       ) : (
         <button className="border-2 border-b-white rounded-xl p-3" onClick={connectWallet}>

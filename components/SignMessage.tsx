@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { ToastContext } from './ToastContextProvider';
 
-export default function SignMessage({nominator, nominee}: { nominator: string, nominee: string }) {
+export default function SignMessage({nominator, nominee, stakeRequirement}: { nominator: string, nominee: string, stakeRequirement: string}) {
   const {showTemporarySuccessMessage} = useContext(ToastContext);
 
   const sendTransaction = async (e: any, blobData: any) => {
@@ -20,7 +20,13 @@ export default function SignMessage({nominator, nominee}: { nominator: string, n
 
       console.log("BLOB: ", blobData);
 
-      const value = ethers.BigNumber.from(JSON.parse(blobData).stake);
+      const stakeRequiredBN = ethers.BigNumber.from(stakeRequirement)
+      const value = ethers.BigNumber.from(JSON.parse(blobData).stake)
+      if (stakeRequiredBN.gt(value)) {
+        showTemporarySuccessMessage(`Stake amount must be greater than ${stakeRequirement} SHM`)
+        setLoading(false)
+        return
+      }
 
       const params = {
         from,
