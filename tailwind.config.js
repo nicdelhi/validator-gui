@@ -21,6 +21,9 @@ module.exports = {
                     },
                     '.btn-primary': {
                         color: 'white'
+                    },
+                    '.btn-error': {
+                        color: 'white'
                     }
                 },
             },

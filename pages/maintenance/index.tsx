@@ -6,7 +6,7 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   ExclamationCircleIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon, InformationCircleIcon
 } from '@heroicons/react/20/solid';
 import RemoveStakeButton from '../../components/RemoveStakeButton';
 import { nullPlaceholder } from '../../utils/null-placerholder';
@@ -73,18 +73,32 @@ export default function Maintenance({apiPort}: any) {
                   <div className="capitalize">Status: {nullPlaceholder(nodeStatus.state)}</div>
                   <div>Total time validating: {nullPlaceholder(nodeStatus.totalTimeValidating)}</div>
                   <div>Time since last active: {nullPlaceholder(nodeStatus.lastActive)}</div>
+                {nodeStatus.exitStatus != null &&
+                    <div>Exit status: {nullPlaceholder(nodeStatus.exitStatus)}</div>}
                   <div className="flex-grow"/>
+
                 {nodeStatus.state === 'stopped' &&
-                    <div className="flex text-red-500 items-center">
+                    <div className="flex items-center">
                         <div>
-                            <ExclamationCircleIcon className="h-7 w-7"/>
+                            <InformationCircleIcon className="h-7 w-7 text-blue-600"/>
                         </div>
-                        <div className="ml-2 font-semibold">
+                        <div className="ml-2">
                             If your node is stopped, it will not be part of the network and therefore is not
                             eligible to receive node rewards
                         </div>
                     </div>
                 }
+
+                {nodeStatus.exitStatus != null &&
+                    <div className="flex text-red-500 items-center">
+                        <div>
+                            <ExclamationCircleIcon className="h-7 w-7"/>
+                        </div>
+                        <div className="ml-2 font-semibold">
+                            Node exited with following message: {nodeStatus.exitMessage}
+                        </div>
+                    </div>}
+
                   <div className="flex justify-end">
                     {(nodeStatus.state === 'active' || nodeStatus.state === 'standby') &&
                         <LoadingButton className="btn btn-error"
