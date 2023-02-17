@@ -2,18 +2,21 @@ import React, { useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { ToastContext } from './ToastContextProvider';
+import { useTXLogs } from "../hooks/useTXLogs";
 import LoadingButton from './LoadingButton';
 
 export default function SignMessage({
                                       nominator,
                                       nominee,
                                       stakeAmount,
+                                      apiPort,
                                       onStake
-                                    }: { nominator: string, nominee: string, stakeAmount?: number, onStake?: () => void }) {
+                                    }: { nominator: string, nominee: string, stakeAmount?: number, apiPort: string, onStake?: () => void }) {
   const {showTemporarySuccessMessage} = useContext(ToastContext);
 
   const sendTransaction = async (e: any, blobData: any) => {
     setLoading(true);
+    const {writeStakeLog} = useTXLogs(apiPort)
     try {
       // @ts-ignore
       const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -45,6 +48,7 @@ export default function SignMessage({
       const txConfirmation = await wait();
       console.log("TX CONFRIMED: ", txConfirmation);
       showTemporarySuccessMessage('Stake successful!');
+      await writeStakeLog(blobData)
     } catch (error) {
       console.log(error);
     }

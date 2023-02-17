@@ -2,12 +2,14 @@ import { useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { ToastContext } from './ToastContextProvider';
+import { useTXLogs } from "../hooks/useTXLogs";
 import LoadingButton from './LoadingButton';
 
-export default function RemoveStakeButton({nominee}: { nominee: string }) {
+export default function RemoveStakeButton({nominee, apiPort}: { nominee: string, apiPort: string }) {
   const {showTemporarySuccessMessage} = useContext(ToastContext);
 
   const sendTransaction = async (nominator: string, nominee: string) => {
+    const {writeUnstakeLog} = useTXLogs(apiPort)
     try {
       // @ts-ignore
       const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -45,6 +47,7 @@ export default function RemoveStakeButton({nominee}: { nominee: string }) {
       const txConfirmation = await wait();
       console.log("TX CONFRIMED: ", txConfirmation);
       showTemporarySuccessMessage('Remove stake successful!');
+      await writeUnstakeLog(unstakeData)
       setLoading(false);
     } catch (error) {
       console.log(error);

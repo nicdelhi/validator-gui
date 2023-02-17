@@ -27,7 +27,7 @@ export const useTXLogs = (
   }
 
   return {
-    writeStakeLog,
     writeUnstakeLog,
+    writeStakeLog,
   }
 }
