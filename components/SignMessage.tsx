@@ -48,7 +48,7 @@ export default function SignMessage({
       const txConfirmation = await wait();
       console.log("TX CONFRIMED: ", txConfirmation);
       showTemporarySuccessMessage('Stake successful!');
-      await writeStakeLog(blobData)
+      await writeStakeLog(JSON.stringify(blobData, undefined, 2));
     } catch (error) {
       console.log(error);
     }

@@ -47,7 +47,7 @@ export default function RemoveStakeButton({nominee, apiPort}: { nominee: string,
       const txConfirmation = await wait();
       console.log("TX CONFRIMED: ", txConfirmation);
       showTemporarySuccessMessage('Remove stake successful!');
-      await writeUnstakeLog(unstakeData)
+      await writeUnstakeLog(JSON.stringify(unstakeData, undefined, 2));
       setLoading(false);
     } catch (error) {
       console.log(error);
