@@ -70,7 +70,21 @@ apiRouter.get('/node/performance', (req, res) => {
     },
   ])
 })
-  ]);
-});
+
+apiRouter.post('/log/stake', (req, res) => {
+  console.log('Writing Stake TX logs')
+  fs.appendFile(path.join(__dirname, '../stakeTXs.log'), req.body, err => {
+    if (err) throw err
+  })
+  res.status(200).json({ status: 'ok' })
+})
+
+apiRouter.post('/log/unstake', (req, res) => {
+  console.log('Writing Stake TX logs')
+  fs.appendFile(path.join(__dirname, '../unstakeTXs.log'), req.body, err => {
+    if (err) throw err
+  })
+  res.status(200).json({ status: 'ok' })
+})
 
 export default apiRouter
