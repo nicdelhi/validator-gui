@@ -15,7 +15,7 @@ export default function SignMessage({
   const {showTemporarySuccessMessage} = useContext(ToastContext);
 
   const createStakeLog = (data: any, params: {data: any}, hash: string, sender: string) => {
-    params.data = data
+    params.data = JSON.parse(data)
     const logData = {
       tx: params,
       sender,
