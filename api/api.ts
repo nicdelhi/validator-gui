@@ -4,7 +4,6 @@ import configureNodeHandlers from './handlers/node'
 import { exec } from 'child_process'
 import fs from 'fs'
 import path from 'path'
-import { cliStderrResponse } from './handlers/util'
 const yaml = require('js-yaml')
 
 const apiRouter = express.Router()
@@ -74,15 +73,27 @@ apiRouter.get('/node/performance', (req, res) => {
 apiRouter.post('/log/stake', (req, res) => {
   console.log('Writing Stake TX logs')
   fs.appendFile(path.join(__dirname, '../stakeTXs.log'), req.body, err => {
-    if (err) throw err
+    if (err) {
+      console.log(err)
+      res.status(500).json({
+        errorMessage: err,
+      })
+      return
+    }
   })
   res.status(200).json({ status: 'ok' })
 })
 
 apiRouter.post('/log/unstake', (req, res) => {
-  console.log('Writing Stake TX logs')
+  console.log('Writing Unstake TX logs')
   fs.appendFile(path.join(__dirname, '../unstakeTXs.log'), req.body, err => {
-    if (err) throw err
+    if (err) {
+      console.log(err)
+      res.status(500).json({
+        errorMessage: err,
+      })
+      return
+    }
   })
   res.status(200).json({ status: 'ok' })
 })
