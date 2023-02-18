@@ -8,6 +8,17 @@ import LoadingButton from './LoadingButton';
 export default function RemoveStakeButton({nominee, apiPort}: { nominee: string, apiPort: string }) {
   const {showTemporarySuccessMessage} = useContext(ToastContext);
 
+  const createUnstakeLog = (data: any, params: {data: any}, hash: string, sender: string) => {
+    params.data = data
+    const logData = {
+      tx: params,
+      sender,
+      txHash: hash
+    }
+
+    return logData
+  }
+
   const sendTransaction = async (nominator: string, nominee: string) => {
     const {writeUnstakeLog} = useTXLogs(apiPort)
     try {
@@ -43,11 +54,11 @@ export default function RemoveStakeButton({nominee, apiPort}: { nominee: string,
 
       const {hash, data, wait} = await signer.sendTransaction(params);
       console.log("TX RECEIPT: ", {hash, data});
+      await writeUnstakeLog(createUnstakeLog(unstakeData, params, hash, from))
 
       const txConfirmation = await wait();
       console.log("TX CONFRIMED: ", txConfirmation);
       showTemporarySuccessMessage('Remove stake successful!');
-      await writeUnstakeLog(JSON.stringify(unstakeData, undefined, 2));
       setLoading(false);
     } catch (error) {
       console.log(error);

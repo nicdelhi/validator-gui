@@ -14,6 +14,17 @@ export default function SignMessage({
                                     }: { nominator: string, nominee: string, stakeAmount?: number, apiPort: string, onStake?: () => void }) {
   const {showTemporarySuccessMessage} = useContext(ToastContext);
 
+  const createStakeLog = (data: any, params: {data: any}, hash: string, sender: string) => {
+    params.data = data
+    const logData = {
+      tx: params,
+      sender,
+      txHash: hash
+    }
+
+    return logData
+  }
+
   const sendTransaction = async (e: any, blobData: any) => {
     setLoading(true);
     const {writeStakeLog} = useTXLogs(apiPort)
@@ -44,11 +55,11 @@ export default function SignMessage({
 
       const {hash, data, wait} = await signer.sendTransaction(params);
       console.log("TX RECEIPT: ", {hash, data});
+      await writeStakeLog(createStakeLog(blobData, params, hash, from))
 
       const txConfirmation = await wait();
       console.log("TX CONFRIMED: ", txConfirmation);
       showTemporarySuccessMessage('Stake successful!');
-      await writeStakeLog(JSON.stringify(blobData, undefined, 2));
     } catch (error) {
       console.log(error);
     }
