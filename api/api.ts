@@ -72,7 +72,7 @@ apiRouter.get('/node/performance', (req, res) => {
 
 apiRouter.post('/log/stake', (req, res) => {
   console.log('Writing Stake TX logs')
-  fs.appendFile(path.join(__dirname, '../stakeTXs.log'), req.body, err => {
+  fs.appendFile(path.join(__dirname, '../stakeTXs.log'), JSON.stringify(req.body, undefined, 3), err => {
     if (err) {
       console.log(err)
       res.status(500).json({
@@ -86,7 +86,7 @@ apiRouter.post('/log/stake', (req, res) => {
 
 apiRouter.post('/log/unstake', (req, res) => {
   console.log('Writing Unstake TX logs')
-  fs.appendFile(path.join(__dirname, '../unstakeTXs.log'), req.body, err => {
+  fs.appendFile(path.join(__dirname, '../unstakeTXs.log'), JSON.stringify(req.body, undefined, 3), err => {
     if (err) {
       console.log(err)
       res.status(500).json({
