@@ -1,0 +1,15 @@
+stages:
+  - build
+
+build:
+  stage: build
+  image:
+    name: $CI_COMMIT_BRANCH == "main" ? "registry.gitlab.com/shardeum/server:latest" : "registry.gitlab.com/shardeum/server:dev"
+    entrypoint: ["/bin/bash", "-c"]
+  script:
+    - npm install
+    - npm run lint
+    - npm run build
+  only:
+    - merge_requests
+  allow_failure: false
