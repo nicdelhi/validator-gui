@@ -1,0 +1,31 @@
+stages:
+  - build-dev
+  - build-main
+
+build-dev:
+  stage: build-dev
+  image:
+    name: registry.gitlab.com/shardeum/server:dev
+    entrypoint: ["/bin/bash", "-c"]
+  script:
+    - npm install
+    - npm run lint
+    - npm run build
+  only:
+    - merge_requests
+    - /^dev/
+  allow_failure: false
+
+build-main:
+  stage: build-main
+  image:
+    name: registry.gitlab.com/shardeum/server:latest
+    entrypoint: ["/bin/bash", "-c"]
+  script:
+    - npm install
+    - npm run lint
+    - npm run build
+  only:
+    - merge_requests
+    - /^main/
+  allow_failure: false
