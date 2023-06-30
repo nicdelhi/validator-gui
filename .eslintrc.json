@@ -16,7 +16,6 @@
     "prettier"
   ],
   "ignorePatterns": [
-    "**/api/**/*.ts"
   ],
   "rules": {
     "no-empty": [

@@ -1,10 +1,8 @@
 import * as express from 'express'
 
 import configureNodeHandlers from './handlers/node'
-import { exec } from 'child_process'
 import fs from 'fs'
 import path from 'path'
-const yaml = require('js-yaml')
 
 const apiRouter = express.Router()
 

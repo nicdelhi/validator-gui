@@ -3,8 +3,8 @@ import { execFile } from 'child_process'
 import { cliStderrResponse, unautorizedResponse } from './handlers/util'
 import * as crypto from '@shardus/crypto-utils';
 import rateLimit from 'express-rate-limit';
-const yaml = require('js-yaml')
-const jwt = require('jsonwebtoken')
+import yaml from 'js-yaml';
+import jwt from 'jsonwebtoken';
 
 function isValidSecret(secret: unknown) {
   return typeof secret === 'string' && secret.length >= 32;
@@ -15,7 +15,7 @@ function generateRandomSecret() {
 }
 
 const jwtSecret = (isValidSecret(process.env.JWT_SECRET))
-  ? process.env.JWT_SECRET
+  ? process.env.JWT_SECRET as string
   : generateRandomSecret();
 crypto.init('64f152869ca2d473e4ba64ab53f49ccdb2edae22da192c126850970e788af347');
 
@@ -33,7 +33,7 @@ export const loginHandler = (req: Request, res: Response) => {
       return
     }
 
-    const cliResponse = yaml.load(stdout)
+    const cliResponse = yaml.load(stdout) as {login: string}
 
     if (cliResponse.login !== 'authorized') {
       unautorizedResponse(req, res)
