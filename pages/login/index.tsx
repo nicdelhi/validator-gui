@@ -1,4 +1,4 @@
-import { ReactElement, useState } from 'react'
+import { ReactElement, SetStateAction, useState } from 'react'
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { FieldValues, useForm } from 'react-hook-form'
@@ -24,14 +24,13 @@ const Login = () => {
   function onSubmit({password}: FieldValues) {
     setApiError(null);
 
-    return authService
-      .useLogin(password)
-      .then(() => {
+    authService.useLogin(password)
+    try{
         router.push('/')
-      })
-      .catch(error => {
-        setApiError(error)
-      })
+    }
+    catch(error){
+      setApiError(error as SetStateAction<Error | null>)
+    }
   }
 
   return (
