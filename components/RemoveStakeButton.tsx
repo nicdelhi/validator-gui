@@ -1,44 +1,64 @@
 import { useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { ArrowRightIcon } from '@heroicons/react/20/solid';
-import { ToastContext } from './ToastContextProvider';
+import { ArrowRightIcon } from "@heroicons/react/20/solid";
+import { ToastContext } from "./ToastContextProvider";
 import { useTXLogs } from "../hooks/useTXLogs";
-import LoadingButton from './LoadingButton';
-import { ConfirmModalContext } from './ConfirmModalContextProvider';
-import { isMetaMaskError } from '../utils/isMetaMaskError';
-import { isEthersError } from '../utils/isEthersError';
-import { Address } from 'wagmi';
-import { ExternalProvider } from '@ethersproject/providers';
-import { NodeStatus } from '../model/node-status'
+import LoadingButton from "./LoadingButton";
+import { ConfirmModalContext } from "./ConfirmModalContextProvider";
+import { isMetaMaskError } from "../utils/isMetaMaskError";
+import { isEthersError } from "../utils/isEthersError";
+import { Address } from "wagmi";
+import { ExternalProvider } from "@ethersproject/providers";
+import { NodeStatus } from "../model/node-status";
 
-export default function RemoveStakeButton({nominee, force = false, nodeStatus}: { nominee: string, force?: boolean, nodeStatus: NodeStatus['state'] }) {
-  const {showTemporarySuccessMessage, showErrorMessage} = useContext(ToastContext);
-  const {writeUnstakeLog} = useTXLogs()
-  const {openModal} = useContext(ConfirmModalContext);
+export default function RemoveStakeButton({
+  nominee,
+  force = false,
+  nodeStatus,
+}: {
+  nominee: string;
+  force?: boolean;
+  nodeStatus: NodeStatus["state"];
+}) {
+  const { showTemporarySuccessMessage, showErrorDetails } =
+    useContext(ToastContext);
+  const { writeUnstakeLog } = useTXLogs();
+  const { openModal } = useContext(ConfirmModalContext);
   const ethereum = window.ethereum;
 
-  const createUnstakeLog = (data: unknown, params: { data: unknown }, hash: string, sender: string) => {
-    params.data = data
+  const createUnstakeLog = (
+    data: unknown,
+    params: { data: unknown },
+    hash: string,
+    sender: string
+  ) => {
+    params.data = data;
     const logData = {
       tx: params,
       sender,
-      txHash: hash
-    }
+      txHash: hash,
+    };
 
-    return JSON.stringify(logData)
-  }
+    return JSON.stringify(logData);
+  };
 
-  const sendTransaction = async (nominator: string, nominee: string, force: boolean) => {
+  const sendTransaction = async (
+    nominator: string,
+    nominee: string,
+    force: boolean
+  ) => {
     if (!ethereum) {
-      throw new Error('MetaMask not found');
+      throw new Error("MetaMask not found");
     }
     try {
-      const provider = new ethers.providers.Web3Provider(ethereum as ExternalProvider);
+      const provider = new ethers.providers.Web3Provider(
+        ethereum as ExternalProvider
+      );
       const signer = provider.getSigner();
       const [gasPrice, from, nonce] = await Promise.all([
         signer.getGasPrice(),
         signer.getAddress(),
-        signer.getTransactionCount()
+        signer.getTransactionCount(),
       ]);
 
       const unstakeData = {
@@ -47,7 +67,7 @@ export default function RemoveStakeButton({nominee, force = false, nodeStatus}: 
         nominator,
         timestamp: Date.now(),
         nominee,
-        force
+        force,
       };
       console.log("Unstake Data", unstakeData);
 
@@ -58,28 +78,30 @@ export default function RemoveStakeButton({nominee, force = false, nodeStatus}: 
         data: ethers.utils.hexlify(
           ethers.utils.toUtf8Bytes(JSON.stringify(unstakeData))
         ),
-        nonce
+        nonce,
       };
       console.log("Params: ", params);
 
-      const {hash, data, wait} = await signer.sendTransaction(params);
-      console.log("TX RECEIPT: ", {hash, data});
-      await writeUnstakeLog(createUnstakeLog(unstakeData, params, hash, from))
+      const { hash, data, wait } = await signer.sendTransaction(params);
+      console.log("TX RECEIPT: ", { hash, data });
+      await writeUnstakeLog(createUnstakeLog(unstakeData, params, hash, from));
 
       const txConfirmation = await wait();
       console.log("TX CONFRIMED: ", txConfirmation);
-      showTemporarySuccessMessage('Remove stake successful!');
+      showTemporarySuccessMessage("Remove stake successful!");
       setLoading(false);
     } catch (error) {
       console.error(error);
       let errorMessage = (error as Error)?.message || String(error);
 
       // 4001 is the error code for when a user rejects a transaction
-      if ((isMetaMaskError(error) && error.code === 4001)
-        || (isEthersError(error) && error.code === 'ACTION_REJECTED')) {
-        errorMessage = 'Transaction rejected by user';
+      if (
+        (isMetaMaskError(error) && error.code === 4001) ||
+        (isEthersError(error) && error.code === "ACTION_REJECTED")
+      ) {
+        errorMessage = "Transaction rejected by user";
       }
-      showErrorMessage(errorMessage);
+      showErrorDetails(errorMessage);
     }
     setLoading(false);
   };
@@ -103,7 +125,7 @@ export default function RemoveStakeButton({nominee, force = false, nodeStatus}: 
         return;
       }
       const accounts = await ethereum.request({
-        method: "eth_requestAccounts"
+        method: "eth_requestAccounts",
       });
 
       setAccountAddress(accounts[0]);
@@ -120,11 +142,11 @@ export default function RemoveStakeButton({nominee, force = false, nodeStatus}: 
     isInternalTx: true,
     internalTXType: 7,
     nominator: accountAddress,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 
   ethereum?.on?.("accountsChanged", (accounts: Address[]) => {
-    setData({...data, nominator: accounts[0]});
+    setData({ ...data, nominator: accounts[0] });
   });
 
   async function removeStake() {
@@ -135,32 +157,41 @@ export default function RemoveStakeButton({nominee, force = false, nodeStatus}: 
   const handleRemoveStake = () => {
     if (force) {
       openModal({
-        header: 'Force Remove Stake',
-        modalBody: <>
-          You are about to force remove your staked funds. This can be used to retrieve stake that is otherwise
-          stuck.
-          <br/>
-          <span className='font-semibold'>WARNING</span>: Pending rewards can get lost when using this option!
-        </>,
-        onConfirm: () => removeStake()
+        header: "Force Remove Stake",
+        modalBody: (
+          <>
+            You are about to force remove your staked funds. This can be used to
+            retrieve stake that is otherwise stuck.
+            <br />
+            <span className="font-semibold">WARNING</span>: Pending rewards can
+            get lost when using this option!
+          </>
+        ),
+        onConfirm: () => removeStake(),
       });
-
     } else {
-      removeStake()
+      removeStake();
     }
-  }
+  };
 
   return (
     <>
       {haveMetamask ? (
         <>
           <div>
-            <LoadingButton className="btn btn-primary"
-                           isLoading={isLoading}
-                           disabled={!force && (nodeStatus === 'standby' || nodeStatus === 'syncing' || nodeStatus === 'active')}
-                           onClick={() => handleRemoveStake()}>
+            <LoadingButton
+              className="btn btn-primary"
+              isLoading={isLoading}
+              disabled={
+                !force &&
+                (nodeStatus === "standby" ||
+                  nodeStatus === "syncing" ||
+                  nodeStatus === "active")
+              }
+              onClick={() => handleRemoveStake()}
+            >
               Remove Stake
-              <ArrowRightIcon className="h-5 w-5 inline ml-2"/>
+              <ArrowRightIcon className="h-5 w-5 inline ml-2" />
             </LoadingButton>
           </div>
         </>
