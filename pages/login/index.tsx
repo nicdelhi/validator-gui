@@ -8,6 +8,7 @@ import Head from 'next/head';
 
 const Login = () => {
   const router = useRouter()
+  const login = authService.useLogin()
 
   useEffect(() => {
     // redirect to home if already logged in
@@ -21,12 +22,12 @@ const Login = () => {
 
   const [apiError, setApiError] = useState<Error | null>(null);
 
-  function onSubmit({password}: FieldValues) {
+  async function onSubmit({password}: FieldValues) {
     setApiError(null);
 
-    authService.useLogin(password)
     try{
-        router.push('/')
+      await login(password)
+      router.push('/')
     }
     catch(error){
       setApiError(error as SetStateAction<Error | null>)
