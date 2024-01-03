@@ -1,7 +1,7 @@
 import { ReactElement, useState } from "react";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import { FieldValues, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { ArrowPathIcon } from "@heroicons/react/20/solid";
 import { authService } from "../../services/auth.service";
 import Head from "next/head";
@@ -17,32 +17,38 @@ const Login = () => {
   const router = useRouter();
   const { register, handleSubmit, formState } = useForm<LoginFormFields>();
   const [apiError, setApiError] = useState<Error | null>(null);
-  const [failedAttempts, setFailedAttempts] = useState(0);
   const [isLockedOut, setIsLockedOut] = useState(false);
+  //function for lockout mechanism for login rate limiting.
+  const checkLockoutState = () => {
+    const lockoutTime = localStorage.getItem("lockoutTime");
+    if (lockoutTime) {
+      const timePassed = new Date().getTime() - parseInt(lockoutTime);
+      if (timePassed < LOCKOUT_DURATION_MS) {
+        setIsLockedOut(true);
+        const remainingTime = LOCKOUT_DURATION_MS - timePassed;
+        setTimeout(() => {
+          localStorage.removeItem("lockoutTime");
+          localStorage.removeItem("failedAttempts");
+          setIsLockedOut(false);
+        }, remainingTime);
+      } else {
+        localStorage.removeItem("lockoutTime");
+        localStorage.removeItem("failedAttempts");
+        setIsLockedOut(false);
+      }
+    }
+  };
 
   useEffect(() => {
     if (authService.isLogged) {
       router.push("/");
     }
+    checkLockoutState();
   }, [router]);
 
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+  const onSubmit: SubmitHandler<LoginFormFields> = async (data) => {
     if (isLockedOut) {
-      timeoutId = setTimeout(() => {
-        setIsLockedOut(false);
-        setFailedAttempts(0);
-      }, LOCKOUT_DURATION_MS);
-    }
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [isLockedOut]);
-
-  const onSubmit = async (data: { password: string }) => {
-    if (isLockedOut) {
+      checkLockoutState(); // Recheck lockout state in case the lockout period has just expired
       return;
     }
 
@@ -50,16 +56,26 @@ const Login = () => {
 
     try {
       await authService.useLogin(data.password);
+      localStorage.removeItem("lockoutTime");
+      localStorage.removeItem("failedAttempts");
       router.push("/");
     } catch (error) {
       setApiError(error as Error);
-      setFailedAttempts((prev) => prev + 1);
-      if (failedAttempts + 1 >= MAX_ATTEMPTS) {
+      const failedAttempts =
+        parseInt(localStorage.getItem("failedAttempts") || "0") + 1;
+      localStorage.setItem("failedAttempts", failedAttempts.toString());
+      if (failedAttempts >= MAX_ATTEMPTS) {
+        const currentTime = new Date().getTime();
+        localStorage.setItem("lockoutTime", currentTime.toString());
         setIsLockedOut(true);
+        setTimeout(() => {
+          localStorage.removeItem("lockoutTime");
+          localStorage.removeItem("failedAttempts");
+          setIsLockedOut(false);
+        }, LOCKOUT_DURATION_MS);
       }
     }
   };
-
   return (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
