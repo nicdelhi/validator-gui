@@ -1,12 +1,12 @@
 import Router from 'next/router'
 import { useGlobals } from '../utils/globals'
-import { hashSha256 } from '../utils/sha256-hash';
+import { hashSha256, getHashSalt } from '../utils/sha256-hash';
 
 const tokenKey = 'shmguitk'
 
 async function useLogin(password: string): Promise<void> {
   const { apiBase } = useGlobals()
-  const sha256digest = await hashSha256(password)
+  const sha256digest = await hashSha256(password + getHashSalt())
   return fetch(`${apiBase}/auth/login`, {
     headers: { 'Content-Type': 'application/json' },
     method: 'POST',

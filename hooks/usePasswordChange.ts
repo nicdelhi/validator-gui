@@ -1,7 +1,7 @@
 import { fetcher } from './fetcher';
 import { useGlobals } from '../utils/globals';
 import { useContext, useState } from 'react';
-import { hashSha256 } from '../utils/sha256-hash';
+import { hashSha256, getHashSalt } from '../utils/sha256-hash';
 import { ToastContext } from '../components/ToastContextProvider';
 
 export type ChangePasswordResult = {
@@ -18,8 +18,8 @@ export const usePassword = (): ChangePasswordResult => {
   async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
     setIsLoading(true)
     try {
-      const currentPwSha256digest = await hashSha256(currentPassword)
-      const newPwSha256digest = await hashSha256(newPassword)
+      const currentPwSha256digest = await hashSha256(currentPassword + getHashSalt())
+      const newPwSha256digest = await hashSha256(newPassword + getHashSalt())
       await fetcher(`${apiBase}/api/password`, {
         method: 'POST',
         body: JSON.stringify({currentPassword: currentPwSha256digest, newPassword: newPwSha256digest})
