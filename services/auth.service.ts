@@ -3,6 +3,7 @@ import { useGlobals } from '../utils/globals'
 import { hashSha256, getHashSalt } from '../utils/sha256-hash';
 
 const tokenKey = 'shmguitk'
+let isLoggedIn = false
 
 async function useLogin(password: string): Promise<void> {
   const { apiBase } = useGlobals()
@@ -20,21 +21,19 @@ async function useLogin(password: string): Promise<void> {
       throw new Error('Error executing login')
     }
 
-    localStorage.setItem(tokenKey, data.accessToken)
+    isLoggedIn = true
   })
 }
 
 function logout(): void {
   localStorage.removeItem(tokenKey)
+  isLoggedIn = false
   Router.push('/login')
 }
 
 export const authService = {
   get isLogged(): boolean {
-    return !!localStorage.getItem(tokenKey)
-  },
-  get authToken(): string | null {
-    return localStorage.getItem(tokenKey)
+    return isLoggedIn
   },
   useLogin,
   logout,

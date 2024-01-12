@@ -6,8 +6,8 @@ export const fetcher = <T>(input: RequestInfo | URL,
   return fetch(input, {
     headers: {
       'Content-Type': 'application/json',
-      'X-Api-Token': authService.authToken!,
     },
+    credentials: 'include', // Send cookies
     ...(init ?? {}),
   }).then(async (res) => {
     const data = await res.json();

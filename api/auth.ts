@@ -3,6 +3,7 @@ import { execFile } from 'child_process'
 import { cliStderrResponse, unautorizedResponse } from './handlers/util'
 import * as crypto from '@shardus/crypto-utils';
 import rateLimit from 'express-rate-limit';
+import { isDev } from '../utils/is-dev';
 const yaml = require('js-yaml')
 const jwt = require('jsonwebtoken')
 
@@ -40,7 +41,13 @@ export const loginHandler = (req: Request, res: Response) => {
       return
     }
     const accessToken = jwt.sign({ nodeId: '' /** add unique node id  */ }, jwtSecret)
-    res.send({accessToken: accessToken })
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: !isDev,
+      sameSite: "strict",
+    }); // Set the token as an HTTP-only cookie
+    res.send({ message: "Logged in successfully" });
   })
   console.log('executing operator-cli gui login...')
 }
@@ -55,7 +62,7 @@ export const httpBodyLimiter = express.json({ limit: '100kb' })
 
 
 export const jwtMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.headers['x-api-token']
+  const token = req.cookies.accessToken;
 
   if (!token) {
     unautorizedResponse(req, res)
