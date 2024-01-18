@@ -135,6 +135,10 @@ export default function Maintenance() {
                   <span className="font-semibold">Last rotation index:</span>{" "}
                   {nullPlaceholder(nodeStatus.lastRotationIndex)}
                 </div>
+                <div>
+                  <span className="font-semibold">Total Rotation:</span>{" "}
+                  {nullPlaceholder(nodeStatus.totalRotation)}
+                </div>
                 {nodeStatus.exitStatus != null && (
                   <div>
                     <span className="font-semibold">Exit status:</span>{" "}

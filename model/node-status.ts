@@ -33,4 +33,5 @@ export interface NodeStatus {
     internalPort: number;
     publicKey: string;
   };
+  totalRotation:number;
 }
