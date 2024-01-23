@@ -20,8 +20,7 @@ const jwtSecret = (isValidSecret(process.env.JWT_SECRET))
 crypto.init('64f152869ca2d473e4ba64ab53f49ccdb2edae22da192c126850970e788af347');
 
 export const loginHandler = (req: Request, res: Response) => {
-  const password = req.body && req.body.password
-  const hashedPass = crypto.hash(password);
+  const hashedPass : string = req.body && req.body.password
   // Exec the CLI validator login command
   execFile('operator-cli', ['gui', 'login', hashedPass], (err, stdout, stderr) => {
     if (err) {

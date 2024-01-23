@@ -170,8 +170,7 @@ export default function configureNodeHandlers(apiRouter: Router) {
       currentPassword: string;
       newPassword: string;
     }>, res: Response) => {
-      const password = req.body && req.body.currentPassword
-      const hashedPass = crypto.hash(password);
+      const hashedPass : string = req.body && req.body.currentPassword
       const stdout = execFileSync('operator-cli', ['gui', 'login', hashedPass], {encoding: 'utf8'});
       const cliResponse = yaml.load(stdout);
 
