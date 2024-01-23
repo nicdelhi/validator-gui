@@ -9,7 +9,7 @@ import {
   NodeStatusResponse,
   NodeVersionResponse
 } from '../types/node-types';
-import { badRequestResponse, cliStderrResponse } from './util';
+import { badRequestResponse, cliStderrResponse, hashSha256, getHashSalt } from './util';
 import path from 'path';
 import { existsSync } from 'fs';
 import asyncRouteHandler from './async-router-handler';
@@ -171,7 +171,7 @@ export default function configureNodeHandlers(apiRouter: Router) {
       newPassword: string;
     }>, res: Response) => {
       const password = req.body && req.body.currentPassword
-      const hashedPass = crypto.hash(password);
+      const hashedPass = crypto.hash(await hashSha256(password + getHashSalt()));
       const stdout = execFileSync('operator-cli', ['gui', 'login', hashedPass], {encoding: 'utf8'});
       const cliResponse = yaml.load(stdout);
 
@@ -180,7 +180,7 @@ export default function configureNodeHandlers(apiRouter: Router) {
         return;
       }
 
-      execFileSync('operator-cli', ['gui', 'set', 'password', '-h', req.body.newPassword]);
+      execFileSync('operator-cli', ['gui', 'set', 'password', '-h', await hashSha256(req.body.newPassword + getHashSalt())]);
       res.status(200).json({status: "ok"})
     }));
 

@@ -9,11 +9,10 @@ function useLogin() {
   const { apiBase } = useGlobals();
 
   return useCallback(async (password: string) => {
-    const sha256digest = await hashSha256(password);
     const res = await fetch(`${apiBase}/auth/login`, {
       headers: {'Content-Type': 'application/json'},
       method: 'POST',
-      body: JSON.stringify({password: sha256digest}),
+      body: JSON.stringify({password : password}),
     });
     await res.json();
     if (!res.ok) {
