@@ -8,6 +8,7 @@ import next from 'next';
 import dotenv from 'dotenv';
 import { cacheStaticFiles, preventBrowserCacheForDynamicContent, setSecurityHeaders } from './security-headers';
 import { errorMiddleware } from './error-middleware';
+import asyncRouteHandler from './handlers/async-router-handler';
 
 dotenv.config()
 const port = process.env.PORT ? +process.env.PORT : 8080
@@ -20,7 +21,7 @@ if (isDev) {
     const app = express()
     app.use(httpBodyLimiter)
     app.use(apiLimiter)
-    app.post('/auth/login', loginHandler)
+    app.post('/auth/login', asyncRouteHandler(loginHandler))
     app.use('/api', jwtMiddleware, apiRouter)
     app.get('*', (req: any, res: any) => nextHandler(req, res))
     app.use(errorMiddleware(isDev))
@@ -35,7 +36,7 @@ if (isDev) {
   app.use(httpBodyLimiter)
   app.use(apiLimiter)
   setSecurityHeaders(app);
-  app.post('/auth/login', loginHandler)
+  app.post('/auth/login', asyncRouteHandler(loginHandler))
   app.use('/api', jwtMiddleware, apiRouter)
   app.use(errorMiddleware(isDev))
   app.use(cacheStaticFiles);

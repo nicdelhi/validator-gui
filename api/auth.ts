@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express'
 import { execFile } from 'child_process'
-import { cliStderrResponse, unautorizedResponse } from './handlers/util'
+import { cliStderrResponse, hashSha256, getHashSalt, unautorizedResponse } from './handlers/util'
 import * as crypto from '@shardus/crypto-utils';
 import rateLimit from 'express-rate-limit';
 const yaml = require('js-yaml')
@@ -19,8 +19,9 @@ const jwtSecret = (isValidSecret(process.env.JWT_SECRET))
   : generateRandomSecret();
 crypto.init('64f152869ca2d473e4ba64ab53f49ccdb2edae22da192c126850970e788af347');
 
-export const loginHandler = (req: Request, res: Response) => {
-  const hashedPass : string = req.body && req.body.password
+export const loginHandler = async (req: Request, res: Response) => {
+  const password = req.body && req.body.password
+  const hashedPass = crypto.hash(await hashSha256(password + getHashSalt()));
   // Exec the CLI validator login command
   execFile('operator-cli', ['gui', 'login', hashedPass], (err, stdout, stderr) => {
     if (err) {

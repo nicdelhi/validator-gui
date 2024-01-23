@@ -18,11 +18,9 @@ export const usePassword = (): ChangePasswordResult => {
   async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
     setIsLoading(true)
     try {
-      const currentPwSha256digest = await hashSha256(currentPassword)
-      const newPwSha256digest = await hashSha256(newPassword)
       await fetcher(`${apiBase}/api/password`, {
         method: 'POST',
-        body: JSON.stringify({currentPassword: currentPwSha256digest, newPassword: newPwSha256digest})
+        body: JSON.stringify({currentPassword: currentPassword, newPassword: newPassword})
       }, showErrorMessage)
       showTemporarySuccessMessage('Password changed successfully!')
     } catch (e) {
