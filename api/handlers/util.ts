@@ -29,7 +29,7 @@ export function getHashSalt(): string {
   if (process.env.HASH_SALT) {
     return process.env.HASH_SALT;
   }
-  console.log('WARNING: HASH_SALT not set, generating random salt');
+  console.warn('WARNING: HASH_SALT not set, generating random salt');
   const hashSalt = crypto.randomBytes(16).toString('hex');
   process.env.HASH_SALT = hashSalt;
   return hashSalt;
