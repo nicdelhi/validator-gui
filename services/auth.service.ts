@@ -1,6 +1,5 @@
 import Router from 'next/router'
 import {useGlobals} from '../utils/globals'
-import {hashSha256} from '../utils/sha256-hash';
 import {useCallback} from "react";
 
 const isLoggedInKey = 'isLoggedIn'

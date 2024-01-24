@@ -1,7 +1,6 @@
 import { fetcher } from './fetcher';
 import { useGlobals } from '../utils/globals';
 import { useContext, useState } from 'react';
-import { hashSha256 } from '../utils/sha256-hash';
 import { ToastContext } from '../components/ToastContextProvider';
 
 export type ChangePasswordResult = {
